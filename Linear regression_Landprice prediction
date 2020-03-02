@@ -1,0 +1,50 @@
+#Predicting land price 
+#importing libraries 
+import pandas as pd 
+import numpy as np 
+import matplotlib.pyplot as plt 
+
+#Importing CSV file
+data = pd.read_csv("Landprice.csv")
+#X - 1st three columns has been considerd as Independent variables
+#Y - 3rd column has been considered as Dependent variables
+X = data.iloc[:, :-1].values
+Y = data.iloc[:, 1].values
+
+#Splitting dataset into train and test dataset
+from sklearn.model_selection import train_test_split 
+X_train,X_test,Y_train,Y_test = train_test_split(X,Y,test_size=1/3,random_state=0)
+"""
+print(X_train)
+print(X_test)
+print(Y_train)
+print(Y_test)
+"""
+#Importing linear search library from scikit learn
+from sklearn.linear_model import LinearRegression
+lg = LinearRegression()
+lg = lg.fit(X_train,Y_train)
+
+#Predicting test dataset using predict function
+Predict_y = np.floor(lg.predict(X_test))
+
+#subplots
+fig, (ax1,ax2) = plt.subplots(nrows=2,ncols=1,sharex=True)
+
+#Visualizing the training dataset
+ax1.scatter(X_train,Y_train,color= 'blue')
+ax1.plot(X_train,np.floor(lg.predict(X_train)),color='black')
+ax1.set_title('Land price prediction(Squarefeet vs Price)')
+ax1.set_xlabel('Squarefeet')
+ax1.set_ylabel('Price')
+
+#Visualizing the test dataset
+ax2.scatter(X_test,Y_test,color= 'Red')
+ax2.plot(X_train,np.floor(lg.predict(X_train)),color='Green')
+ax2.set_title('Land price prediction(Squarefeet vs Price)')
+ax2.set_xlabel('Squarefeet')
+ax2.set_ylabel('Price')
+
+
+plt.tight_layout()
+plt.show()
