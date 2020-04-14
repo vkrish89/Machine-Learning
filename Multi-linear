@@ -1,0 +1,71 @@
+#Predicting profit using multi-linear regression
+#importing libraries 
+import pandas as pd 
+import numpy as np 
+import matplotlib.pyplot as plt 
+
+#Importing CSV file
+data = pd.read_csv("50_Startups.csv")
+#X - Last column is considered as dependent variable
+#Y - 1 - 3 columns are considered as independent variable
+X = data.iloc[:, :-1].values
+Y = data.iloc[:, 4].values
+
+#encoding categorizing variable(column sname 'Country' as '0','1','2's)
+#column transformer to encode only the categorical data and passthrougth the remaining data as it is ..
+#np.floor -> to convert it to rounded value
+#astype(float) -> ouput will be converted into float value
+from sklearn.preprocessing import LabelEncoder,OneHotEncoder
+from sklearn.compose import ColumnTransformer
+ct = ColumnTransformer([('oh_enc',OneHotEncoder(sparse=False),[3]),],remainder='passthrough')
+X=np.floor(ct.fit_transform(X)).astype(float)
+
+#to avoid dummy variable trap(this will be taken care internally by Linear Regression)
+X = X[:, 1:]
+
+#Splitting dataset into train and test dataset
+from sklearn.model_selection import train_test_split 
+X_train,X_test,Y_train,Y_test = train_test_split(X,Y,test_size=0.2,random_state=0)
+
+#fitting multiple linear regression to the training dataset
+from sklearn.linear_model import LinearRegression
+regressor = LinearRegression()
+regressor.fit(X_train,Y_train)
+
+#predicting test results
+predict_y = regressor.predict(X_test)
+
+#building optimal model using backward elimination
+import statsmodels.api as sm
+#intercept - this is required while fittig the model for OLS(Ordinary Least Square)
+X = np.append(arr = np.ones((50,1)).astype(int),values = X,axis =1)
+#initialzing the varible
+X_opm = X[:,[0,1,2,3,4,5]]
+reg_OLS = sm.OLS(Y,X_opm).fit()
+reg_OLS.summary()
+#After print statement value for index '2' is more than significant value(0.05). 
+#Hence removing it from our model
+X_opm = X[:,[0,1,3,4,5]]
+reg_OLS = sm.OLS(Y,X_opm).fit()
+reg_OLS.summary()
+
+X_opm = X[:,[0,1,3,5]]
+reg_OLS = sm.OLS(Y,X_opm).fit()
+reg_OLS.summary()
+
+X_opm = X[:,[0,3,5]]
+reg_OLS = sm.OLS(Y,X_opm).fit()
+reg_OLS.summary()
+
+X_opm = X[:,[0,3,]]
+reg_OLS = sm.OLS(Y,X_opm).fit()
+print(reg_OLS.summary())
+
+
+
+
+
+
+
+
+
